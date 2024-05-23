@@ -1,0 +1,13 @@
+/* Add this CSS to your styles.css or in a <style> tag */
+.image img {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+  }
+   
+  .image img.reveal {
+    opacity: 1;
+  }
+   
+   /* body{
+    background-color: aqua;
+   } */
