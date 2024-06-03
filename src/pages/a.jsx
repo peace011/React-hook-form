@@ -1,96 +1,131 @@
-// import React, { useEffect, useState, Fragment } from 'react';
-// import axios from 'axios';
-// import { useInfiniteQuery } from 'react-query';
-// import { Link } from 'react-router-dom';
+import React, { ReactNode, createContext, useContext, useMemo, useState } from 'react';
+import { Popover } from '@radix-ui/themes';
+import { Command } from 'cmdk';
 
-// interface MainPokemon {
-//     name: string;
-//     url: string;
-// }
+type AutocompleteContextType = {
+  value: string;
+  onValueChange: (value: string) => void;
+  search: string;
+  setSearch: (value: string) => void;
+  changeOpenState: (value: boolean) => void;
+};
 
-// const DiscoverPage = () => {
-//     const [query, setQuery] = useState<string>('');
-//     const [filterData, setFilterData] = useState<MainPokemon[]>([]);
+type AutocompleteSingleType = {
+  value?: string;
+  onValueChange?: (value: string) => void;
+  defaultValue?: string;
+  open?: boolean;
+  onOpenChange?: (value: boolean) => void;
+};
 
-//     const fetchInfiniteData = ({ pageParam = 0 }) => {
-//         return axios.get(`https://pokeapi.co/api/v2/pokemon?limit=10&offset=${pageParam}`);
-//     };
+type AutocompleteRootType = Popover.RootProps & AutocompleteSingleType;
 
-//     const {
-//         isLoading,
-//         isError,
-//         data,
-//         hasNextPage,
-//         fetchNextPage,
-//         isFetching,
-//         isFetchingNextPage,
-//     } = useInfiniteQuery('pokemon', fetchInfiniteData, {
-//         getNextPageParam: (lastPage, pages) => {
-//             const nextOffset = pages.length * 10;
-//             return nextOffset < 130 ? nextOffset : undefined;
-//         },
-//     });
+const AutoCompleteContext = createContext<AutocompleteContextType>({} as never);
 
-//     useEffect(() => {
-//         if (data) {
-//             const allResults = data.pages.flatMap((group) => group.data.results);
-//             const filtered = allResults.filter((item: MainPokemon) =>
-//                 item && item.name.toLowerCase().includes(query.toLowerCase())
-//             );
-//             setFilterData(filtered);
-//         }
-//     }, [query, data]);
+const AutocompleteRoot = (props: AutocompleteRootType) => {
+  const { children, value, onValueChange, defaultValue, open, onOpenChange, ...rootprops } = props;
+  const [initialOpen, setInitialOpen] = useState(false);
+  const [selected, setSelected] = useState<string>(defaultValue ?? '');
+  const [search, setSearch] = useState('');
 
-//     if (isLoading) {
-//         return <p>Loading</p>;
-//     }
-//     if (isError || !data) {
-//         return <p>Error fetching data</p>;
-//     }
+  return (
+    <Popover.Root
+      {...rootprops}
+      open={onOpenChange ? open : initialOpen}
+      onOpenChange={onOpenChange ?? setInitialOpen}
+    >
+      <AutoCompleteContext.Provider
+        value={useMemo(
+          () => ({
+            value: value ?? selected,
+            onValueChange: (value) => {
+              if (onValueChange) onValueChange(value);
+              else setSelected(value);
+            },
+            search,
+            setSearch,
+            changeOpenState: onOpenChange ? setInitialOpen : () => {},
+          }),
+          [value, selected, search, onValueChange, onOpenChange]
+        )}
+      >
+        {children}
+      </AutoCompleteContext.Provider>
+    </Popover.Root>
+  );
+};
 
-//     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//         setQuery(e.target.value);
-//     };
+type AutocompleteTriggerType = Popover.TriggerProps & {
+  buttonFunction: (value: string) => ReactNode;
+};
 
-//     return (
-//         <div>
-//             <input
-//                 type='text'
-//                 placeholder='Search'
-//                 onChange={handleOnChange}
-//                 className='m-4 border border-black'
-//             />
-//             <table className='border border-black w-full text-center'>
-//                 <thead>
-//                     <tr>
-//                         <th>S.N</th>
-//                         <th>Name</th>
-//                         <th>URL</th>
-//                     </tr>
-//                 </thead>
-//                 <tbody>
-//                     {filterData.map((item: MainPokemon, index: number) => {
-//                         const id = item.url.split('/')[6];
-//                         return (
-//                             <tr key={id}>
-//                                 <td>{id}</td>
-//                                 <td>{item.name}</td>
-//                                 <td><Link to={`/pokemon/${id}`}>{item.url}</Link></td>
-//                             </tr>
-//                         );
-//                     })}
-//                 </tbody>
-//             </table>
-//             <button
-//                 type='button'
-//                 disabled={!hasNextPage || isFetchingNextPage}
-//                 onClick={() => fetchNextPage()}
-//             >
-//                 {isFetchingNextPage ? 'Loading more...' : hasNextPage ? 'Load More' : 'No More Data'}
-//             </button>
-//             <div>{isFetching && !isFetchingNextPage ? 'Fetching...' : null}</div>
-//         </div>
-//     );
-// };
+const AutocompleteTrigger = (props: AutocompleteTriggerType) => {
+  const { buttonFunction, ...triggerprops } = props;
+  const { value } = useContext(AutoCompleteContext);
 
-// export default DiscoverPage;
+  return (
+    <Popover.Trigger {...triggerprops}>
+      <button>
+        {value && (typeof value === 'string' || value?.length > 0) ? buttonFunction(value) : 'Select a value'}
+      </button>
+    </Popover.Trigger>
+  );
+};
+
+type AutocompleteContentType = Popover.ContentProps;
+
+const AutocompleteContent = (props: AutocompleteContentType) => {
+  const { children, ...contentprops } = props;
+
+  const filter = (value: string, search: string, keywords?: string[]) => {
+    const extendValue = value + ' ' + (keywords?.map((k) => k.toLowerCase()).join('') || '');
+    return extendValue.includes(search.toLowerCase()) ? 1 : 0;
+  };
+
+  return (
+    <Popover.Content {...contentprops}>
+      <Command filter={filter}>
+        {children}
+      </Command>
+    </Popover.Content>
+  );
+};
+
+type AutocompleteInputType = React.ComponentPropsWithoutRef<typeof Command.Input>; 
+
+const AutocompleteInput = (props: AutocompleteInputType) => {
+  const { ...inputprops } = props;
+  const { search, setSearch } = useContext(AutoCompleteContext);
+  return (
+    <Command.Input {...inputprops} value={search} onValueChange={setSearch} />
+  );
+};
+
+type AutocompleteListType = React.ComponentPropsWithoutRef<typeof Command.List>;
+
+const AutocompleteList = (props: AutocompleteListType) => {
+  const { children, ...listprops } = props;
+  return (
+    <Command.List {...listprops}>
+      {children}
+    </Command.List>
+  );
+};
+
+type AutocompleteItemType = React.ComponentPropsWithoutRef<typeof Command.Item>;
+
+const AutocompleteItem = (props: AutocompleteItemType) => {
+  const { children, ...itemprops } = props;
+  return (
+    <Command.Item {...itemprops}>
+      {children}
+    </Command.Item>
+  );
+};
+
+export { AutocompleteRoot as Root };
+export { AutocompleteTrigger as Trigger };
+export { AutocompleteContent as Content };
+export { AutocompleteInput as Input };
+export { AutocompleteList as List };
+export { AutocompleteItem as Item };
