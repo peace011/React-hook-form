@@ -17,6 +17,7 @@ import InputPage from './pages/InputPage'
 import Ref from './pages/Ref'
 import AutocompleteMenu from './pages/MyAutocomplete/AutocompleteMenu'
 import { useForm } from 'react-hook-form'
+import Board from './pages/Tictactoe/Board'
 
 function App() {
   const {control,name}=useForm();
@@ -39,6 +40,8 @@ function App() {
         <Route path='/inputpage' element={ <InputPage/>}/>
         <Route path='/ref' element={ <Ref/>}/>
         <Route path='/myauto' element={ <AutocompleteMenu name='autocomplete' control={control}/>}/>
+        <Route path='/tictac' element={ <Board/>}/>
+
 
 
       </Routes>
