@@ -6,7 +6,7 @@ const Board = () => {
     const [xIsNext,setXIsNext]=useState(true);
 
     const handleClick=( i:number)=>{
-        if(squares[i] || calculateWinner(squares)){  // calculateWinner is called
+        if(squares[i] || calculateWinner(squares)){  // calculateWinner is called and squares is argument
             return;
         }
         let nextSquares=squares.slice();
