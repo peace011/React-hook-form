@@ -18,13 +18,40 @@ import Ref from './pages/Ref'
 import AutocompleteMenu from './pages/MyAutocomplete/AutocompleteMenu'
 import { useForm } from 'react-hook-form'
 import Board from './pages/Tictactoe/Board'
+import {ApolloClient,InMemoryCache,ApolloProvider,HttpLink,from} from '@apollo/client';
+import {onError} from '@apollo/client/link/error'
+import GetUser from './graphql/components/GetUser'
+import Form from './graphql/components/Form'
+
+const errorLink=onError(({graphqlErrors,networkError})=>{
+  if(graphqlErrors){
+    graphqlErrors.map((message,location,path)=>{
+      alert (`Graohql error ${message}`);
+    });
+  }
+  if (networkError) {
+    console.log(`[Network error]: ${networkError}`);
+  }
+});
+const link=from ([
+  errorLink,
+  new HttpLink({url:"http://182.93.94.7:4003/graphql"}),
+]);
+const client=new ApolloClient({
+  cache:new InMemoryCache(),
+  link: link,
+})
 
 function App() {
   const {control,name}=useForm();
 
   return (
-    <>
-    <BrowserRouter>
+    <ApolloProvider client={client}>
+      {" "}
+
+      <GetUser/>
+      {/* <Form/> */}
+    {/* <BrowserRouter>
       <Routes>
    
         <Route path='/' element={ <Homepage/>}/>
@@ -45,12 +72,12 @@ function App() {
 
 
       </Routes>
-    </BrowserRouter>
+    </BrowserRouter> */}
 
 
 
 
-    </>
+    </ApolloProvider>
   )
 }
 

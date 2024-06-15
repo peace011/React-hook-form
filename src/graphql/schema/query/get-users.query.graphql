@@ -1,0 +1,10 @@
+query SearchAllUser($pageNumber: Int, $rowPerPage: Int, $search: String) {
+    searchAllUser(pageNumber: $pageNumber, rowPerPage: $rowPerPage, search: $search) {
+      data {
+        id
+        phoneNumber
+        userName
+      }
+      totalCount
+    }
+  }

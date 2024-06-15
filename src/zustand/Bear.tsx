@@ -8,6 +8,7 @@ import { useStore } from './store'
 // }
 const Bear = () => {
     const {bears,increasePopulation}=useStore();
+    const updateBear = useStore.getState().updateBears;
 
         const updateBears=useStore((state)=>state.updateBears)
   return (
