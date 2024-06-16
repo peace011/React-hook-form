@@ -22,6 +22,7 @@ import {ApolloClient,InMemoryCache,ApolloProvider,HttpLink,from} from '@apollo/c
 import {onError} from '@apollo/client/link/error'
 import GetUser from './graphql/components/GetUser'
 import Form from './graphql/components/Form'
+import TodoList from './useReducer/TodoList'
 
 const errorLink=onError(({graphqlErrors,networkError})=>{
   if(graphqlErrors){
@@ -35,7 +36,7 @@ const errorLink=onError(({graphqlErrors,networkError})=>{
 });
 const link=from ([
   errorLink,
-  new HttpLink({url:"http://182.93.94.7:4003/graphql"}),
+  new HttpLink({uri:"http://182.93.94.7:4003/graphql"}),
 ]);
 const client=new ApolloClient({
   cache:new InMemoryCache(),
@@ -46,12 +47,13 @@ function App() {
   const {control,name}=useForm();
 
   return (
-    <ApolloProvider client={client}>
-      {" "}
+    <>
+   <ApolloProvider client={client}>
+    {" "}
 
-      <GetUser/>
+     <GetUser/>
       {/* <Form/> */}
-    {/* <BrowserRouter>
+    <BrowserRouter>
       <Routes>
    
         <Route path='/' element={ <Homepage/>}/>
@@ -68,16 +70,20 @@ function App() {
         <Route path='/ref' element={ <Ref/>}/>
         <Route path='/myauto' element={ <AutocompleteMenu name='autocomplete' control={control}/>}/>
         <Route path='/tictac' element={ <Board/>}/>
+        <Route path='/todo' element={ <TodoList/>}/>
+
 
 
 
       </Routes>
-    </BrowserRouter> */}
+    </BrowserRouter>
 
 
 
 
     </ApolloProvider>
+    </>
+
   )
 }
 

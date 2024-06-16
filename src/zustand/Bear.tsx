@@ -7,10 +7,10 @@ import { useStore } from './store'
 //     updateBears:(count:number)=>void;
 // }
 const Bear = () => {
-    const {bears,increasePopulation}=useStore();
-    const updateBear = useStore.getState().updateBears;
+    const {bears,increasePopulation}=useStore(); //one way
+    const updateBear = useStore.getState().updateBears;  //3rd way
 
-        const updateBears=useStore((state)=>state.updateBears)
+        const updateBears=useStore((state)=>state.updateBears) //2nd way
   return (
     <div>
         <h1>{bears} around here...</h1>
