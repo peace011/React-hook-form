@@ -1,6 +1,5 @@
 import React, { useReducer, useState } from 'react'
-import AddTask from './AddTask';
-import TaskList from './TaskList';
+import AddTask from './Alter';
 
 const TodoList = () => {
     const [input, setInput]=useState('');
@@ -9,7 +8,7 @@ const TodoList = () => {
         { id: 1, text: 'Watch a puppet show', done: false },
         { id: 2, text: 'Lennon Wall pic', done: true }
       ];
-    const reducer=(state,action)=>{
+    const reducer=(state,action)=>{  //action value can be any string,number so action.id or action.text can be done incase only id is passed instead of delid
         switch(action.type){
             case 'added':{
                return [...state,{
@@ -19,7 +18,7 @@ const TodoList = () => {
                }];
             }
             case 'deleted':{
-                const del=state.filter((item)=>item.id===action.delid? !action.delid: item) ;
+                const del=state.filter((item)=>item.id===action.delid? !action.delid: item) ;  //action.id if id is only passed
                 return del;
             }
   

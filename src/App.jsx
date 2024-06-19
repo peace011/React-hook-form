@@ -23,6 +23,8 @@ import {onError} from '@apollo/client/link/error'
 import GetUser from './graphql/components/GetUser'
 import Form from './graphql/components/Form'
 import TodoList from './useReducer/TodoList'
+import Home from './Disclosure/Home'
+import Day from './dayjs/Day'
 
 const errorLink=onError(({graphqlErrors,networkError})=>{
   if(graphqlErrors){
@@ -71,6 +73,10 @@ function App() {
         <Route path='/myauto' element={ <AutocompleteMenu name='autocomplete' control={control}/>}/>
         <Route path='/tictac' element={ <Board/>}/>
         <Route path='/todo' element={ <TodoList/>}/>
+        <Route path='/disclosure' element={ <Home/>}/>
+        <Route path='/dayjs' element={ <Day/>}/>
+
+
 
 
 
