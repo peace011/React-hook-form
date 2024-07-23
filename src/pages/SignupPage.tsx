@@ -15,7 +15,11 @@ const schema = z.object({
   password: z.string().nonempty('password is required'),
   confirmpassword: z.string().nonempty('confirmpassword is required'),
   phone: z.array(z.object({
-    number: z.string().nonempty('phone is required').length(10, 'Phone number must be at least 10 digits'),
+    number: z.string().nonempty('phone is required').length(10, 'Phone number must be at least 10 digits')
+    .regex(/^9\d{9}$/, { message: 'Phone no. must be 10 digits and only numbers' }),   
+     //^9: Ensures that the string starts with the digit 9
+    //\d{9}: There is exactly 9 digits following the initial 9
+    //$: Asserts that the string must end after these 10 characters (ensuring there are no extra characters).
   })),
   education: z.array(z.object({
     college: z.string().optional(),
